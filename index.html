@@ -75,6 +75,11 @@ input[type=number]{
 .small{
     font-size:14px;
 }
+select{
+    width:100%;
+    padding:10px;
+    font-size:16px;
+}
 </style>
 </head>
 
@@ -84,14 +89,19 @@ input[type=number]{
 <h1>🏰 Jacob's KIRF Academy</h1>
 </header>
 
-<!-- HOME -->
 <div id="home" class="screen active">
 
 <div class="card center">
 <h2>Welcome Back Jacob!</h2>
+
 <div class="stat">⭐ Stars: <span id="stars">0</span></div>
+
 <div class="stat">🏆 Trophies: <span id="trophycount">0</span></div>
+
 <div class="stat">🔥 Best Streak: <span id="beststreak">0</span></div>
+
+<div class="stat">🏅 Best Challenge: <span id="bestscore">0</span></div>
+
 </div>
 
 <button onclick="showScreen('practiceMenu')">📚 Practice</button>
@@ -101,10 +111,11 @@ input[type=number]{
 
 </div>
 
-<!-- PRACTICE MENU -->
 <div id="practiceMenu" class="screen">
+
 <div class="card">
 <h2>Select Table</h2>
+
 <select id="tableSelect">
 <option value="2">2 Times Table</option>
 <option value="3" selected>3 Times Table</option>
@@ -113,83 +124,110 @@ input[type=number]{
 <option value="8">8 Times Table</option>
 <option value="10">10 Times Table</option>
 </select>
+
 </div>
 
 <button onclick="startPractice()">Start Practice</button>
 <button onclick="showScreen('home')">Back</button>
+
 </div>
 
-<!-- GAME -->
 <div id="game" class="screen">
 
 <div class="card center">
+
 <div id="modeTitle"></div>
+
 <div id="timer"></div>
-<div>Score: <span id="score">0</span></div>
-<div>🔥 Streak: <span id="streak">0</span></div>
+
+<div>
+Score:
+<span id="score">0</span>
+</div>
+
+<div>
+🔥 Streak:
+<span id="streak">0</span>
+</div>
+
 </div>
 
 <div class="question" id="question"></div>
 
 <input id="answer" type="number">
 
-<button onclick="submitAnswer()">Answer</button>
+<button onclick="submitAnswer()">
+Answer
+</button>
 
 <div id="feedback" class="center"></div>
 
 </div>
 
-<!-- TROPHIES -->
 <div id="trophies" class="screen">
+
 <h2>🏆 Trophy Room</h2>
 
 <div id="trophyList"></div>
 
-<button onclick="showScreen('home')">Back</button>
+<button onclick="showScreen('home')">
+Back
+</button>
+
 </div>
 
 <script>
 
 const TROPHIES = [
+
 {
  id:'first',
  name:'🥉 First Correct Answer',
  condition:d=>d.correct>=1,
  stars:10
 },
+
 {
  id:'ten',
  name:'🥈 10 Correct Answers',
  condition:d=>d.correct>=10,
  stars:20
 },
+
 {
  id:'hundred',
  name:'🏆 100 Correct Answers',
  condition:d=>d.correct>=100,
  stars:50
 },
+
 {
  id:'speed3',
- name:'⚡ Quick Off The Mark',
+ name:'⚡ Quick Off The Mark (3 correct answers within 10 seconds)',
  condition:d=>d.fast3,
  stars:50
 },
+
 {
  id:'streak5',
- name:'🎯 Sharp Shooter',
+ name:'🎯 Sharp Shooter (5 correct answers in a row)',
  condition:d=>d.bestStreak>=5,
  stars:25
 },
+
 {
  id:'perfect',
  name:'💯 Perfect Challenge',
  condition:d=>d.perfectChallenge,
  stars:100
 }
+
 ];
 
-let data=JSON.parse(localStorage.getItem('kirfData'))||{
+let data = JSON.parse(
+localStorage.getItem('kirfData')
+) || {
+
 correct:0,
 answered:0,
 bestScore:0,
@@ -198,23 +236,35 @@ stars:0,
 unlocked:[],
 fast3:false,
 perfectChallenge:false
+
 };
 
-let game={
+let game = {
+
 score:0,
 streak:0,
 table:3,
 answer:0,
+
+challengeAnswers:0,
+challengeCorrect:0,
+
 mode:'practice',
 correctTimes:[]
+
 };
 
 function save(){
-localStorage.setItem('kirfData',
-JSON.stringify(data));
+
+localStorage.setItem(
+'kirfData',
+JSON.stringify(data)
+);
+
 }
 
 function showScreen(id){
+
 document.querySelectorAll('.screen')
 .forEach(x=>x.classList.remove('active'));
 
@@ -222,86 +272,136 @@ document.getElementById(id)
 .classList.add('active');
 
 refreshHome();
+
 }
 
 function refreshHome(){
-document.getElementById('stars').innerText=data.stars;
-document.getElementById('beststreak').innerText=data.bestStreak;
-document.getElementById('trophycount').innerText=data.unlocked.length;
+
+document.getElementById('stars').innerText =
+data.stars;
+
+document.getElementById('beststreak').innerText =
+data.bestStreak;
+
+document.getElementById('trophycount').innerText =
+data.unlocked.length;
+
+document.getElementById('bestscore').innerText =
+data.bestScore || 0;
+
 }
 
 function createQuestion(){
 
-let type=Math.floor(Math.random()*3);
+const type =
+Math.floor(Math.random()*3);
 
-let n=Math.floor(Math.random()*12)+1;
+const n =
+Math.floor(Math.random()*12)+1;
+
+let questionText='';
 
 if(type===0){
-game.answer=n*game.table;
-question.innerHTML=
+
+currentAnswer = n * game.table;
+
+questionText =
 `${game.table} × ${n} = ?`;
+
 }
 
-if(type===1){
-game.answer=n;
-question.innerHTML=
+else if(type===1){
+
+currentAnswer = n;
+
+questionText =
 `${n*game.table} ÷ ${game.table} = ?`;
+
 }
 
-if(type===2){
-game.answer=n;
-question.innerHTML=
+else{
+
+currentAnswer = n;
+
+questionText =
 `${game.table} × □ = ${n*game.table}`;
+
 }
 
-answer.value="";
-answer.focus();
+game.answer = currentAnswer;
+
+document.getElementById('question').innerHTML =
+questionText;
+
+document.getElementById('answer').value='';
+
+document.getElementById('answer').focus();
+
 }
 
 function startPractice(){
-game.table=
-parseInt(tableSelect.value);
+
+game.table =
+parseInt(
+document.getElementById('tableSelect').value
+);
+
 game.mode='practice';
+
 game.score=0;
 game.streak=0;
 
-modeTitle.innerHTML=
+document.getElementById('score').innerText=0;
+document.getElementById('streak').innerText=0;
+
+document.getElementById('modeTitle').innerHTML =
 '📚 Practice Mode';
 
-timer.innerHTML='';
+document.getElementById('timer').innerHTML='';
 
 showScreen('game');
 
 createQuestion();
+
 }
 
 function startChallenge(){
 
-game.table=
-parseInt(tableSelect?.value || 3);
+game.table =
+parseInt(
+document.getElementById('tableSelect').value
+);
 
 game.mode='challenge';
+
 game.score=0;
 game.streak=0;
+
+game.challengeAnswers=0;
+game.challengeCorrect=0;
+
 game.correctTimes=[];
+
+document.getElementById('score').innerText=0;
+document.getElementById('streak').innerText=0;
 
 showScreen('game');
 
-modeTitle.innerHTML=
+document.getElementById('modeTitle').innerHTML =
 '⚡ 60 Second Challenge';
 
-let remaining=60;
+let remaining = 60;
 
-timer.innerHTML=
+document.getElementById('timer').innerHTML =
 'Time: 60';
 
 createQuestion();
 
-let t=setInterval(()=>{
+let t = setInterval(()=>{
 
 remaining--;
 
-timer.innerHTML=
+document.getElementById('timer').innerHTML =
 'Time: '+remaining;
 
 if(remaining<=0){
@@ -318,96 +418,128 @@ endChallenge();
 
 function submitAnswer(){
 
-let v=parseInt(answer.value);
+const answerBox =
+document.getElementById('answer');
+
+const v =
+parseInt(answerBox.value);
 
 data.answered++;
+
+if(game.mode==='challenge'){
+game.challengeAnswers++;
+}
 
 if(v===game.answer){
 
 game.score++;
 game.streak++;
 
-data.correct++;
+if(game.mode==='challenge'){
 
-if(game.streak>data.bestStreak)
-data.bestStreak=game.streak;
+game.challengeCorrect++;
 
-feedback.innerHTML='✅ Correct';
-
-if(game.mode==='challenge')
 game.correctTimes.push(Date.now());
 
-}else{
+}
+
+data.correct++;
+
+if(game.streak>data.bestStreak){
+data.bestStreak=game.streak;
+}
+
+document.getElementById('feedback')
+.innerHTML='✅ Correct';
+
+}
+else{
 
 game.streak=0;
 
-feedback.innerHTML=
+document.getElementById('feedback')
+.innerHTML=
 '❌ Answer was '+game.answer;
+
 }
 
-score.innerHTML=game.score;
-streak.innerHTML=game.streak;
+document.getElementById('score').innerHTML =
+game.score;
+
+document.getElementById('streak').innerHTML =
+game.streak;
 
 checkAchievements();
 
 setTimeout(createQuestion,700);
 
 save();
+
 refreshHome();
+
 }
 
 function checkAchievements(){
 
-if(game.mode==='challenge'
-&& game.correctTimes.length>=3){
+if(
+game.mode==='challenge' &&
+game.correctTimes.length>=3
+){
 
-let ms=
-game.correctTimes[2]-
+let ms =
+game.correctTimes[2] -
 game.correctTimes[0];
 
-if(ms<=10000)
+if(ms<=10000){
 data.fast3=true;
+}
+
 }
 
 TROPHIES.forEach(t=>{
 
-if(!data.unlocked.includes(t.id)
-&& t.condition(data)){
+if(
+!data.unlocked.includes(t.id)
+&& t.condition(data)
+){
 
 data.unlocked.push(t.id);
 
-data.stars+=t.stars;
+data.stars += t.stars;
 
 alert(
-'🏆 Trophy Unlocked!\n'
-+t.name
+'🏆 Trophy Unlocked!\n\n'
++ t.name
 );
 
 }
+
 });
 
 }
 
 function endChallenge(){
 
-if(game.score>=10
-&& game.score===data.answered){
-
+if(
+game.challengeAnswers >= 10 &&
+game.challengeAnswers === game.challengeCorrect
+){
 data.perfectChallenge=true;
 }
 
-if(game.score>data.bestScore)
-data.bestScore=game.score;
+if(game.score > data.bestScore){
+data.bestScore = game.score;
+}
+
+save();
 
 alert(
-'Challenge Complete!\n\n'
+'🏁 Challenge Complete!\n\nScore: '
 +
-'Score: '+game.score
+game.score
 );
 
 showScreen('home');
-
-save();
 
 }
 
@@ -415,45 +547,64 @@ function showTrophies(){
 
 showScreen('trophies');
 
+const trophyList =
+document.getElementById('trophyList');
+
 trophyList.innerHTML='';
 
 TROPHIES.forEach(t=>{
 
-let div=
+const div =
 document.createElement('div');
 
-let unlocked=
+const unlocked =
 data.unlocked.includes(t.id);
 
-div.className=
-'trophy '
-+
-(unlocked
-?'unlocked'
-:'locked');
+div.className =
+'trophy ' +
+(
+unlocked
+?
+'unlocked'
+:
+'locked'
+);
 
-div.innerHTML=
-(unlocked
-?t.name
-:'🔒 Locked Trophy');
+div.innerHTML =
+unlocked
+?
+t.name
+:
+'🔒 ' + t.name;
 
 trophyList.appendChild(div);
 
 });
+
 }
 
 function openSettings(){
 
-let pin=
+const pin =
 prompt(
 'Enter Parent PIN'
 );
 
-if(pin!=='1234'){
+if(pin !== '1234'){
 return;
 }
 
-let selected=
+const action =
+prompt(
+`Parent Settings
+
+1 = Change Table
+2 = Reset Progress`
+);
+
+if(action === '1'){
+
+const selected =
 prompt(
 'Choose Times Table\n2,3,4,5,8,10',
 game.table
@@ -461,18 +612,38 @@ game.table
 
 if(selected){
 
-game.table=
+game.table =
 parseInt(selected);
 
-alert(
-'Table updated'
+alert('Table updated');
+
+}
+
+}
+
+if(action === '2'){
+
+if(
+confirm(
+'Reset all progress?'
+)
+){
+
+localStorage.removeItem(
+'kirfData'
 );
 
-}
+alert(
+'Progress reset'
+);
+
+location.reload();
+
 }
 
-localStorage.removeItem('kirfData');
-location.reload();
+}
+
+}
 
 refreshHome();
 
