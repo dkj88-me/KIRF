@@ -114,16 +114,27 @@ select{
 <div id="practiceMenu" class="screen">
 
 <div class="card">
-<h2>Select Table</h2>
+<h2>Select Tables</h2>
 
-<select id="tableSelect">
-<option value="2">2 Times Table</option>
-<option value="3" selected>3 Times Table</option>
-<option value="4">4 Times Table</option>
-<option value="5">5 Times Table</option>
-<option value="8">8 Times Table</option>
-<option value="10">10 Times Table</option>
-</select>
+<label><input type="checkbox" class="tbl" value="2"> 2 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="3" checked> 3 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="4"> 4 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="5"> 5 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="6"> 6 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="7"> 7 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="8"> 8 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="9"> 9 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="10"> 10 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="11"> 11 Times Table</label><br>
+<label><input type="checkbox" class="tbl" value="12"> 12 Times Table</label>
+
+<button type="button" onclick="selectAllTables()">
+Select All
+</button>
+
+<button type="button" onclick="clearAllTables()">
+Clear All
+</button>
 
 </div>
 
@@ -166,6 +177,34 @@ Answer
 
 <div id="trophies" class="screen">
 
+<h2>Question Types</h2>
+
+<label>
+<input type="checkbox"
+class="qtype"
+value="multiply"
+checked>
+Multiplication
+</label>
+<br>
+
+<label>
+<input type="checkbox"
+class="qtype"
+value="divide"
+checked>
+Division
+</label>
+<br>
+
+<label>
+<input type="checkbox"
+class="qtype"
+value="missing"
+checked>
+Missing Number
+</label>
+    
 <h2>🏆 Trophy Room</h2>
 
 <div id="trophyList"></div>
