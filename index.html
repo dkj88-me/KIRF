@@ -1,692 +1,1104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jacob's KIRF Academy</title>
-
 <style>
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#eef6ff;
-    color:#1b2b43;
-}
-header{
-    background:#1d4ed8;
-    color:white;
-    padding:15px;
-    text-align:center;
-}
-.screen{
-    display:none;
-    padding:20px;
-}
-.active{
-    display:block;
-}
-button{
-    width:100%;
-    padding:15px;
-    margin:8px 0;
-    border:none;
-    border-radius:12px;
-    font-size:18px;
-    background:#2563eb;
-    color:white;
-}
-.card{
-    background:white;
-    border-radius:15px;
-    padding:15px;
-    margin-bottom:15px;
-    box-shadow:0 2px 8px rgba(0,0,0,.1);
-}
-.question{
-    font-size:42px;
-    text-align:center;
-    margin:20px 0;
-}
-input[type=number]{
-    width:150px;
-    font-size:36px;
-    text-align:center;
-    display:block;
-    margin:auto;
-}
-.center{
-    text-align:center;
-}
-.trophy{
-    padding:8px;
-    margin:4px 0;
-    border-radius:10px;
-}
-.locked{
-    background:#ddd;
-}
-.unlocked{
-    background:#d1fae5;
-}
-.stat{
-    font-size:20px;
-    margin:5px 0;
-}
-.small{
-    font-size:14px;
-}
-select{
-    width:100%;
-    padding:10px;
-    font-size:16px;
-}
+:root{--main:#1d4ed8}
+body{margin:0;font-family:Arial,sans-serif;background:#eef6ff;color:#1b2b43}
+header{background:var(--main);color:#fff;padding:15px;text-align:center}
+header h1{margin:0;font-size:24px}
+.screen{display:none;padding:20px;max-width:500px;margin:auto}
+.active{display:block}
+button{width:100%;padding:15px;margin:8px 0;border:none;border-radius:12px;font-size:18px;background:var(--main);color:#fff;cursor:pointer}
+button.secondary{background:#64748b}
+button.small{width:auto;padding:8px 14px;font-size:14px;margin:0}
+button:disabled{background:#94a3b8;cursor:default}
+.card{background:#fff;border-radius:15px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.question{font-size:42px;text-align:center;margin:20px 0}
+.question.long{font-size:28px}
+.qsub{font-size:16px;color:#64748b;margin-top:6px}
+input[type=number]{width:150px;font-size:36px;text-align:center;display:block;margin:auto}
+.center{text-align:center}
+.trophy{padding:8px;margin:4px 0;border-radius:10px}
+.locked{background:#ddd}
+.unlocked{background:#d1fae5}
+.stat{font-size:20px;margin:5px 0}
+label{display:block;padding:4px 0;font-size:18px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 15px;margin-bottom:8px}
+.itemname{font-size:18px}
+.note{font-size:15px;color:#475569;margin:6px 0}
+#feedback{min-height:30px;font-size:22px;margin-top:10px}
+#feedback b{font-size:30px}
+#toast{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:12px 18px;border-radius:12px;display:none;z-index:10;text-align:center;white-space:pre-line;box-shadow:0 2px 10px rgba(0,0,0,.3);max-width:90%}
+
+/* multiple choice */
+.choicegrid{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.choicegrid button{font-size:30px;margin:0;padding:18px}
+.choicegrid button.right{background:#16a34a}
+.choicegrid button.wrongc{background:#dc2626}
+
+/* learn */
+.tablepick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px}
+.tablepick button{width:auto;min-width:48px;margin:0;padding:10px 14px}
+.tablepick button.sel{background:#f59e0b}
+.skip{font-size:20px;line-height:1.6}
+.dots{display:grid;gap:4px;justify-content:center;margin:12px 0}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--main)}
+.bigfact{font-size:30px;font-weight:bold}
+.factrow{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:18px}
+.factrow.cur{background:#dbeafe}
+.chip{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+/* progress grid */
+.grid{display:grid;grid-template-columns:28px repeat(12,1fr);gap:2px;font-size:10px;text-align:center}
+.gc{border-radius:4px;padding:5px 0;cursor:pointer}
+.gh,.gl{font-weight:bold;padding:5px 0}
+.st-new{background:#e5e7eb;color:#64748b}
+.st-learn{background:#fdba74}
+.st-ok{background:#fde68a}
+.st-done{background:#86efac}
+.legend{margin-top:10px;font-size:14px;line-height:1.8}
+.legend span{display:inline-block;padding:2px 8px;border-radius:6px;margin-right:4px}
 </style>
 </head>
-
 <body>
 
-<header>
-<h1>🏰 Jacob's KIRF Academy</h1>
-</header>
+<header><h1>🏰 Jacob's KIRF Academy</h1></header>
+<div id="toast"></div>
 
+<!-- HOME -->
 <div id="home" class="screen active">
-
-<div class="card center">
-<h2>Welcome Back Jacob!</h2>
-
-<div class="stat">⭐ Stars: <span id="stars">0</span></div>
-
-<div class="stat">🏆 Trophies: <span id="trophycount">0</span></div>
-
-<div class="stat">🔥 Best Streak: <span id="beststreak">0</span></div>
-
-<div class="stat">🏅 Best Challenge: <span id="bestscore">0</span></div>
-
+  <div class="card center">
+    <h2>Welcome Back Jacob! <span id="petIcon"></span></h2>
+    <div class="stat">⭐ Stars: <span id="stars">0</span></div>
+    <div class="stat" id="goalLine"></div>
+    <div class="stat">🏆 Trophies: <span id="trophycount">0</span></div>
+    <div class="stat">🔥 Best Streak: <span id="beststreak">0</span></div>
+    <div class="stat">🏅 Best Challenge: <span id="bestscore">0</span></div>
+    <div class="stat">📅 Days in a row: <span id="daystreak">0</span></div>
+  </div>
+  <button onclick="openMenu('practice')">📚 Practice</button>
+  <button onclick="showLearn()">📖 Learn</button>
+  <button onclick="openMenu('challenge')">⚡ 60 Second Challenge</button>
+  <button onclick="showProgress()">📊 My Progress</button>
+  <button onclick="showShop()">🛒 Star Shop</button>
+  <button onclick="showTrophies()">🏆 Trophy Room</button>
+  <button class="secondary" onclick="openSettings()">⚙️ Parent Settings</button>
 </div>
 
-<button onclick="showScreen('practiceMenu')">📚 Practice</button>
-<button onclick="startChallenge()">⚡ 60 Second Challenge</button>
-<button onclick="showTrophies()">🏆 Trophy Room</button>
-<button onclick="openSettings()">⚙️ Parent Settings</button>
-
-</div>
-
+<!-- SETUP -->
 <div id="practiceMenu" class="screen">
-
-<div class="card">
-<h2>Select Tables</h2>
-
-<label><input type="checkbox" class="tbl" value="2"> 2 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="3" checked> 3 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="4"> 4 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="5"> 5 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="6"> 6 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="7"> 7 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="8"> 8 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="9"> 9 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="10"> 10 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="11"> 11 Times Table</label><br>
-<label><input type="checkbox" class="tbl" value="12"> 12 Times Table</label>
-
-<button type="button" onclick="selectAllTables()">
-Select All
-</button>
-
-<button type="button" onclick="clearAllTables()">
-Clear All
-</button>
-
+  <div class="card">
+    <h2 id="menuTitle">Select Tables</h2>
+    <div class="note" id="menuNote"></div>
+    <div id="tableBoxes"></div>
+    <div class="row">
+      <button type="button" class="small" onclick="setCoreTables()">Starter set (2,3,4,5,8,10)</button>
+      <button type="button" class="small" onclick="setAllTables(true)">Select All</button>
+      <button type="button" class="small" onclick="setAllTables(false)">Clear All</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Question Types</h2>
+    <label><input type="checkbox" class="qtype" value="multiply"> Multiplication (3 × 4 = ?)</label>
+    <label><input type="checkbox" class="qtype" value="divide"> Division (12 ÷ 3 = ?)</label>
+    <label><input type="checkbox" class="qtype" value="missing"> Missing number (3 × □ = 12)</label>
+    <label><input type="checkbox" class="qtype" value="sequence"> Complete the pattern (3, 6, □, 12)</label>
+    <label><input type="checkbox" class="qtype" value="which"> Which is in the table? (pick one)</label>
+  </div>
+  <div class="card">
+    <h2>How to answer</h2>
+    <label><input type="radio" name="astyle" value="type"> ⌨️ Type the answer</label>
+    <label><input type="radio" name="astyle" value="choose"> 🔘 Choose from 4 answers</label>
+    <label><input type="checkbox" id="speakBox"> 🔊 Read questions aloud</label>
+  </div>
+  <button id="startBtn" onclick="startGame()">Start</button>
+  <button class="secondary" onclick="showScreen('home')">Back</button>
 </div>
 
-<button onclick="startPractice()">Start Practice</button>
-<button onclick="showScreen('home')">Back</button>
-
-</div>
-
+<!-- GAME -->
 <div id="game" class="screen">
-
-<div class="card center">
-
-<div id="modeTitle"></div>
-
-<div id="timer"></div>
-
-<div>
-Score:
-<span id="score">0</span>
+  <div class="card center">
+    <div id="modeTitle"></div>
+    <div id="timer"></div>
+    <div id="bestLine"></div>
+    <div>Score: <span id="score">0</span></div>
+    <div>🔥 Streak: <span id="streak">0</span></div>
+  </div>
+  <div class="question" id="question"></div>
+  <div class="center"><button class="small secondary" id="hearBtn" onclick="hearAgain()">🔊 Hear again</button></div>
+  <div id="typeArea">
+    <input id="answer" type="number" inputmode="numeric" autocomplete="off">
+    <button onclick="submitTyped()">Answer</button>
+  </div>
+  <div id="choices" class="choicegrid"></div>
+  <div id="feedback" class="center"></div>
+  <button id="continueBtn" onclick="nextQuestion()" style="display:none">Continue ➡️</button>
+  <button class="secondary" onclick="quitGame()">Quit</button>
 </div>
 
-<div>
-🔥 Streak:
-<span id="streak">0</span>
+<!-- LEARN -->
+<div id="learn" class="screen">
+  <h2>📖 Learn</h2>
+  <div class="tablepick" id="learnPick"></div>
+  <div id="learnBody"></div>
+  <button class="secondary" onclick="showScreen('home')">Back</button>
 </div>
 
+<!-- PROGRESS -->
+<div id="progress" class="screen">
+  <h2>📊 My Progress</h2>
+  <div class="card center"><div class="stat">🟩 <span id="masteredCount">0</span> of 132 facts mastered</div></div>
+  <div class="card">
+    <div id="gridBox"></div>
+    <div class="legend">
+      <span class="st-new">not tried</span><span class="st-learn">still learning</span><span class="st-ok">getting there</span><span class="st-done">mastered</span>
+    </div>
+    <div class="note">Tap a square to see the fact. Type the answer correctly 3 times in a row to turn a square green.</div>
+  </div>
+  <div id="trickyBox"></div>
+  <button class="secondary" onclick="showScreen('home')">Back</button>
 </div>
 
-<div class="question" id="question"></div>
-
-<input id="answer" type="number">
-
-<button onclick="submitAnswer()">
-Answer
-</button>
-
-<div id="feedback" class="center"></div>
-
+<!-- SHOP -->
+<div id="shop" class="screen">
+  <h2>🛒 Star Shop</h2>
+  <div class="card center"><div class="stat">⭐ You have <span id="shopStars">0</span> stars</div></div>
+  <div id="voucherList"></div>
+  <div id="shopList"></div>
+  <button class="secondary" onclick="showScreen('home')">Back</button>
 </div>
 
+<!-- TROPHIES -->
 <div id="trophies" class="screen">
-
-<h2>Question Types</h2>
-
-<label>
-<input type="checkbox"
-class="qtype"
-value="multiply"
-checked>
-Multiplication
-</label>
-<br>
-
-<label>
-<input type="checkbox"
-class="qtype"
-value="divide"
-checked>
-Division
-</label>
-<br>
-
-<label>
-<input type="checkbox"
-class="qtype"
-value="missing"
-checked>
-Missing Number
-</label>
-    
-<h2>🏆 Trophy Room</h2>
-
-<div id="trophyList"></div>
-
-<button onclick="showScreen('home')">
-Back
-</button>
-
+  <h2>🏆 Trophy Room</h2>
+  <div class="center stat" id="trophyCount"></div>
+  <div id="trophyList"></div>
+  <button onclick="showScreen('home')">Back</button>
 </div>
 
 <script>
+const PIN = '1234';
+const GOAL = 10;          // questions per day for the daily goal
+const GOAL_STARS = 3;     // stars for hitting the daily goal
+const ALL_TYPES = ['multiply','divide','missing','sequence','which'];
+const CORE_TABLES = [2,3,4,5,8,10];
 
-const TROPHIES = [
-
-{
- id:'first',
- name:'🥉 First Correct Answer',
- condition:d=>d.correct>=1,
- stars:10
-},
-
-{
- id:'ten',
- name:'🥈 10 Correct Answers',
- condition:d=>d.correct>=10,
- stars:20
-},
-
-{
- id:'hundred',
- name:'🏆 100 Correct Answers',
- condition:d=>d.correct>=100,
- stars:50
-},
-
-{
- id:'speed3',
- name:'⚡ Quick Off The Mark (3 correct answers within 10 seconds)',
- condition:d=>d.fast3,
- stars:50
-},
-
-{
- id:'streak5',
- name:'🎯 Sharp Shooter (5 correct answers in a row)',
- condition:d=>d.bestStreak>=5,
- stars:25
-},
-
-{
- id:'perfect',
- name:'💯 Perfect Challenge',
- condition:d=>d.perfectChallenge,
- stars:100
+/* ---------- Helpers for facts ---------- */
+function masteredCount(d){
+  let c = 0;
+  for(let t=2;t<=12;t++) for(let n=1;n<=12;n++){
+    const f = d.facts[t+'x'+n];
+    if(f && f.lvl>=3) c++;
+  }
+  return c;
+}
+function tableMastered(d, t){
+  for(let n=1;n<=12;n++){
+    const f = d.facts[t+'x'+n];
+    if(!f || f.lvl<3) return false;
+  }
+  return true;
 }
 
+/* ---------- Trophies ---------- */
+const TROPHIES = [];
+function addTrophy(id, name, stars, condition){ TROPHIES.push({id, name, stars, condition}); }
+
+// Total correct answers
+addTrophy('first',   '🥉 First Correct Answer', 10, d=>d.correct>=1);
+addTrophy('ten',     '🥈 10 Correct Answers', 20, d=>d.correct>=10);
+addTrophy('fifty',   '🥈 50 Correct Answers', 30, d=>d.correct>=50);
+addTrophy('hundred', '🏆 100 Correct Answers', 50, d=>d.correct>=100);
+addTrophy('c250',    '🏆 250 Correct Answers', 75, d=>d.correct>=250);
+addTrophy('c500',    '🏆 500 Correct Answers', 100, d=>d.correct>=500);
+addTrophy('c1000',   '👑 1,000 Correct Answers', 200, d=>d.correct>=1000);
+
+// Streaks
+addTrophy('streak5',  '🎯 Sharp Shooter (5 correct in a row)', 25, d=>d.bestStreak>=5);
+addTrophy('streak10', '🎯 Hot Streak (10 correct in a row)', 40, d=>d.bestStreak>=10);
+addTrophy('streak20', '🔥 On Fire (20 correct in a row)', 75, d=>d.bestStreak>=20);
+addTrophy('streak30', '🌋 Unstoppable (30 correct in a row)', 120, d=>d.bestStreak>=30);
+
+// Speed
+addTrophy('speed3', '⚡ Quick Off The Mark (3 correct within 10 seconds)', 50, d=>d.fast3);
+addTrophy('speed5', '🚀 Lightning Fingers (5 correct within 10 seconds)', 100, d=>d.fast5);
+
+// Challenges
+addTrophy('play1',   '⏱️ First 60 Second Challenge', 20, d=>d.challenges>=1);
+addTrophy('play10',  '⏱️ 10 Challenges Played', 50, d=>d.challenges>=10);
+addTrophy('play25',  '⏱️ 25 Challenges Played', 100, d=>d.challenges>=25);
+addTrophy('score10', '🏅 Challenge Score of 10', 25, d=>d.bestScore>=10);
+addTrophy('score20', '🏅 Challenge Score of 20', 50, d=>d.bestScore>=20);
+addTrophy('score30', '🏅 Challenge Score of 30', 100, d=>d.bestScore>=30);
+addTrophy('score40', '🥇 Challenge Score of 40', 200, d=>d.bestScore>=40);
+addTrophy('perfect', '💯 Perfect Challenge (10+ answers, none wrong)', 100, d=>d.perfectChallenge);
+addTrophy('pb1',     '📈 Beat Your Best Score', 30, d=>d.pbCount>=1);
+addTrophy('pb5',     '📈 Beat Your Best Score 5 Times', 100, d=>d.pbCount>=5);
+
+// Coming back every day
+addTrophy('day3',  '📅 3 Days in a Row', 40, d=>d.bestDayStreak>=3);
+addTrophy('day7',  '📅 7 Days in a Row', 100, d=>d.bestDayStreak>=7);
+addTrophy('day14', '📅 14 Days in a Row', 200, d=>d.bestDayStreak>=14);
+
+// Daily goal
+addTrophy('goal1',  '🎯 First Daily Goal Complete', 15, d=>d.goalsDone>=1);
+addTrophy('goal7',  '🎯 7 Daily Goals Complete', 60, d=>d.goalsDone>=7);
+addTrophy('goal30', '🎯 30 Daily Goals Complete', 250, d=>d.goalsDone>=30);
+
+// Learning
+addTrophy('learn1', '📖 Learned a Times Table', 10, d=>d.learned.length>=1);
+addTrophy('learn5', '📖 Explored 5 Times Tables', 30, d=>d.learned.length>=5);
+
+// Question types
+addTrophy('div25',   '➗ Division Beginner (25 correct)', 30, d=>d.typeCorrect.divide>=25);
+addTrophy('div100',  '➗ Division Expert (100 correct)', 75, d=>d.typeCorrect.divide>=100);
+addTrophy('miss25',  '❓ Mystery Solver (25 missing numbers found)', 30, d=>d.typeCorrect.missing>=25);
+addTrophy('miss100', '🕵️ Master Detective (100 missing numbers found)', 75, d=>d.typeCorrect.missing>=100);
+addTrophy('seq25',   '🔢 Pattern Spotter (25 patterns completed)', 30, d=>d.typeCorrect.sequence>=25);
+addTrophy('seq100',  '🧩 Pattern Master (100 patterns completed)', 75, d=>d.typeCorrect.sequence>=100);
+addTrophy('which25', '🔍 Sharp Eyes (25 "which is in the table" right)', 30, d=>d.typeCorrect.which>=25);
+
+// Mastered facts (the green squares in My Progress)
+addTrophy('mast10',  '🟩 10 Facts Mastered', 30, d=>masteredCount(d)>=10);
+addTrophy('mast25',  '🟩 25 Facts Mastered', 50, d=>masteredCount(d)>=25);
+addTrophy('mast50',  '🟩 50 Facts Mastered', 100, d=>masteredCount(d)>=50);
+addTrophy('mast100', '🟩 100 Facts Mastered', 200, d=>masteredCount(d)>=100);
+addTrophy('mastAll', '🌈 ALL 132 Facts Mastered!', 500, d=>masteredCount(d)>=132);
+
+// For every times table (2-12): practice trophies and a "whole table is green" trophy
+for(let n=2;n<=12;n++){
+  addTrophy('tbl'+n+'a', `⭐ ${n} Times Table Star (25 correct)`, 30, d=>(d.tableCorrect[n]||0)>=25);
+  addTrophy('tbl'+n+'b', `🌟 ${n} Times Table Master (100 correct)`, 60, d=>(d.tableCorrect[n]||0)>=100);
+  addTrophy('full'+n,    `🟩 Every ${n}× Fact Mastered`, 80, d=>tableMastered(d, n));
+}
+
+/* ---------- Shop ---------- */
+const SHOP = [
+  {id:'pet_dog',     type:'pet', icon:'🐶', name:'Puppy',    cost:50},
+  {id:'pet_cat',     type:'pet', icon:'🐱', name:'Kitten',   cost:50},
+  {id:'pet_bunny',   type:'pet', icon:'🐰', name:'Bunny',    cost:75},
+  {id:'pet_robot',   type:'pet', icon:'🤖', name:'Robot',    cost:100},
+  {id:'pet_dragon',  type:'pet', icon:'🐉', name:'Dragon',   cost:150},
+  {id:'pet_unicorn', type:'pet', icon:'🦄', name:'Unicorn',  cost:200},
+
+  {id:'theme_blue',   type:'theme', icon:'🔵', name:'Blue (default)', cost:0,  color:'#1d4ed8'},
+  {id:'theme_green',  type:'theme', icon:'🟢', name:'Green',  cost:60, color:'#15803d'},
+  {id:'theme_purple', type:'theme', icon:'🟣', name:'Purple', cost:60, color:'#7e22ce'},
+  {id:'theme_orange', type:'theme', icon:'🟠', name:'Orange', cost:60, color:'#c2410c'},
+  {id:'theme_red',    type:'theme', icon:'🔴', name:'Red',    cost:60, color:'#b91c1c'},
+
+  // Real-life rewards: edit these names and costs to suit. A parent taps "Use" (with the PIN) to cash one in.
+  {id:'rw_treat',  type:'reward', icon:'🍦', name:'Choose a treat',            cost:150},
+  {id:'rw_movie',  type:'reward', icon:'🎬', name:'Pick the family movie',     cost:200},
+  {id:'rw_late',   type:'reward', icon:'🌙', name:'Stay up 30 mins later',     cost:250}
 ];
 
-let data = JSON.parse(
-localStorage.getItem('kirfData')
-) || {
-
-correct:0,
-answered:0,
-bestScore:0,
-bestStreak:0,
-stars:0,
-unlocked:[],
-fast3:false,
-perfectChallenge:false
-
+/* ---------- Learn: tips for each table ---------- */
+const TRICKS = {
+  2: 'Doubles! Every answer is even: 2, 4, 6, 8, 10…',
+  3: 'Count in threes. The digits of each answer add up to 3, 6 or 9. For example 21 → 2 + 1 = 3.',
+  4: 'Double it, then double again! 4 × 6: double 6 is 12, double 12 is 24.',
+  5: 'Answers always end in 5 or 0. Count like a clock: 5, 10, 15, 20…',
+  6: '6 × an even number ends in the same digit as that number: 6 × 4 = 24, 6 × 8 = 48.',
+  7: 'Tricky one! Remember "5, 6, 7, 8": 56 = 7 × 8. Also 7 × 7 = 49.',
+  8: 'Double three times! 8 × 3: double 3 is 6, double is 12, double again is 24.',
+  9: 'Up to 9 × 10 the digits add up to 9: 9 × 4 = 36 (3 + 6 = 9). Or do 10 × and take one away: 9 × 6 = 60 − 6 = 54.',
+  10: 'Just add a zero on the end!',
+  11: 'For 1 to 9, write the digit twice: 11 × 4 = 44.',
+  12: 'Do 10 × and 2 × and add them: 12 × 4 = 40 + 8 = 48.'
 };
 
-let game = {
-
-score:0,
-streak:0,
-table:3,
-answer:0,
-
-challengeAnswers:0,
-challengeCorrect:0,
-
-mode:'practice',
-correctTimes:[]
-
-};
-
-function save(){
-
-localStorage.setItem(
-'kirfData',
-JSON.stringify(data)
-);
-
+/* ---------- Saved data ---------- */
+function makeDefaults(){
+  return {
+    correct:0, answered:0, bestScore:0, bestStreak:0, stars:0, unlocked:[],
+    fast3:false, fast5:false, perfectChallenge:false, tables:[3],
+    challenges:0, tableCorrect:{}, typeCorrect:{multiply:0,divide:0,missing:0,sequence:0,which:0},
+    lastDay:'', dayStreak:0, bestDayStreak:0,
+    owned:[], equipped:{pet:'', theme:'theme_blue'}, vouchers:[],
+    facts:{},                       // per-fact progress: {lvl 0-3, right, wrong}
+    types:ALL_TYPES.slice(), choiceMode:false, speak:false,
+    learned:[], todayDate:'', todayCount:0, goalDate:'', goalsDone:0, pbCount:0
+  };
 }
 
+function load(){
+  const d = makeDefaults();
+  try{
+    const saved = JSON.parse(localStorage.getItem('kirfData'));
+    if(saved) Object.assign(d, saved);
+  }catch(e){}
+  // make sure nested objects exist even in older saves
+  d.tableCorrect = d.tableCorrect || {};
+  d.typeCorrect = Object.assign({multiply:0,divide:0,missing:0,sequence:0,which:0}, d.typeCorrect || {});
+  d.equipped = Object.assign({pet:'', theme:'theme_blue'}, d.equipped || {});
+  d.facts = d.facts || {};
+  if(!Array.isArray(d.types) || !d.types.length) d.types = ALL_TYPES.slice();
+  if(!Array.isArray(d.learned)) d.learned = [];
+  return d;
+}
+function save(){
+  try{ localStorage.setItem('kirfData', JSON.stringify(data)); }catch(e){}
+}
+
+let data = load();
+let game = {score:0,streak:0,tables:[3],types:['multiply'],q:null,mode:'practice',
+            challengeAnswers:0,challengeCorrect:0,correctTimes:[],locked:false,waiting:false,
+            active:false,retry:[],qCount:0,lastKey:'',custom:null,prevBest:0};
+let menuMode = 'practice';
+let timerId = null;
+let nextTimeout = null;
+let toastTimeout = null;
+let learn = {t:3, n:1};
+
+const $ = id => document.getElementById(id);
+
+// Build table checkboxes
+(function(){
+  let html = '';
+  for(let i=2;i<=12;i++){
+    html += `<label><input type="checkbox" class="tbl" value="${i}"> ${i} Times Table</label>`;
+  }
+  $('tableBoxes').innerHTML = html;
+  if(!('speechSynthesis' in window)) $('hearBtn').style.display = 'none';
+})();
+
 function showScreen(id){
-
-document.querySelectorAll('.screen')
-.forEach(x=>x.classList.remove('active'));
-
-document.getElementById(id)
-.classList.add('active');
-
-refreshHome();
-
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  $(id).classList.add('active');
+  refreshHome();
 }
 
 function refreshHome(){
+  $('stars').innerText = data.stars;
+  $('beststreak').innerText = data.bestStreak;
+  $('trophycount').innerText = data.unlocked.length;
+  $('bestscore').innerText = data.bestScore || 0;
+  $('daystreak').innerText = data.dayStreak || 0;
+  const pet = SHOP.find(i=>i.id===data.equipped.pet);
+  $('petIcon').innerText = pet ? pet.icon : '';
+  const theme = SHOP.find(i=>i.id===data.equipped.theme);
+  document.documentElement.style.setProperty('--main', theme ? theme.color : '#1d4ed8');
 
-document.getElementById('stars').innerText =
-data.stars;
+  const today = todayStr(0);
+  const cnt = data.todayDate===today ? data.todayCount : 0;
+  $('goalLine').innerText = data.goalDate===today
+    ? "🎯 Today's goal: done! ✅"
+    : `🎯 Today's goal: ${Math.min(cnt,GOAL)}/${GOAL} questions`;
+}
 
-document.getElementById('beststreak').innerText =
-data.bestStreak;
+function toast(msg){
+  const t = $('toast');
+  if(t.style.display==='block') t.innerText += '\n' + msg;   // stack messages
+  else t.innerText = msg;
+  t.style.display = 'block';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(()=>{ t.style.display='none'; }, 3500);
+}
 
-document.getElementById('trophycount').innerText =
-data.unlocked.length;
+function say(text){
+  try{
+    if(!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-GB';
+    u.rate = 0.9;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speak(text){ if(data.speak) say(text); }
+function hearAgain(){ if(game.q) say(game.q.spoken); }
+function stopSpeech(){ try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){} }
 
-document.getElementById('bestscore').innerText =
-data.bestScore || 0;
+/* ---------- Days in a row and daily goal ---------- */
+function todayStr(offsetDays){
+  return new Date(Date.now() - (offsetDays||0)*86400000).toLocaleDateString('en-CA');
+}
+function touchDay(){
+  const today = todayStr(0);
+  if(data.lastDay === today) return;
+  data.dayStreak = (data.lastDay === todayStr(1)) ? data.dayStreak + 1 : 1;
+  data.lastDay = today;
+  if(data.dayStreak > data.bestDayStreak) data.bestDayStreak = data.dayStreak;
+}
+function rollToday(){
+  const today = todayStr(0);
+  if(data.todayDate !== today){ data.todayDate = today; data.todayCount = 0; }
+}
 
+/* ---------- Menu ---------- */
+function openMenu(mode){
+  menuMode = mode;
+  $('menuTitle').innerText = mode==='challenge' ? '⚡ Challenge: Select Tables' : '📚 Practice: Select Tables';
+  $('menuNote').innerText = mode==='challenge'
+    ? (data.bestScore ? `Try to beat your best score of ${data.bestScore}!` : 'Do your best. Every answer counts!')
+    : 'No timer. Take your time!';
+  $('startBtn').innerText = mode==='challenge' ? 'Start 60 Second Challenge' : 'Start Practice';
+  document.querySelectorAll('.tbl').forEach(c=>{
+    c.checked = data.tables.includes(parseInt(c.value));
+  });
+  document.querySelectorAll('.qtype').forEach(c=>{
+    c.checked = data.types.includes(c.value);
+  });
+  document.querySelector('input[name=astyle][value=' + (data.choiceMode ? 'choose' : 'type') + ']').checked = true;
+  $('speakBox').checked = !!data.speak;
+  showScreen('practiceMenu');
+}
+
+function setAllTables(on){
+  document.querySelectorAll('.tbl').forEach(c=>c.checked = on);
+}
+function setCoreTables(){
+  document.querySelectorAll('.tbl').forEach(c=>{
+    c.checked = CORE_TABLES.includes(parseInt(c.value));
+  });
+}
+function getChecked(selector){
+  return Array.from(document.querySelectorAll(selector))
+    .filter(c=>c.checked).map(c=>c.value);
+}
+
+/* ---------- Choosing the next fact (adaptive) ---------- */
+function factWeight(f){
+  if(!f) return 4;                 // not tried yet
+  if(f.lvl===0) return 8;          // got it wrong last time: ask a lot
+  if(f.lvl===1) return 4;
+  if(f.lvl===2) return 2;
+  return 0.6;                      // mastered: ask now and then
+}
+
+function pickFact(){
+  let list = [];
+  if(game.custom){
+    list = game.custom.map(f=>({t:f.t, n:f.n}));
+  } else {
+    game.tables.forEach(t=>{ for(let n=1;n<=12;n++) list.push({t,n}); });
+  }
+  if(list.length>1) list = list.filter(f=>(f.t+'x'+f.n)!==game.lastKey);   // no repeats back-to-back
+  let total = 0;
+  list.forEach(f=>{ f.w = factWeight(data.facts[f.t+'x'+f.n]); total += f.w; });
+  let r = Math.random()*total;
+  for(const f of list){
+    r -= f.w;
+    if(r<=0) return f;
+  }
+  return list[list.length-1];
+}
+
+function recordFact(table, n, correct, viaChoice){
+  const k = table+'x'+n;
+  const f = data.facts[k] || (data.facts[k] = {lvl:0, right:0, wrong:0});
+  if(correct){
+    f.right++;
+    const maxLvl = viaChoice ? 2 : 3;     // guessing from choices can't reach "mastered"
+    if(f.lvl < maxLvl) f.lvl++;
+  } else {
+    f.wrong++;
+    f.lvl = 0;
+  }
+}
+
+/* ---------- Building questions ---------- */
+function shuffle(a){
+  a = a.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function randomItem(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function makeChoices(ans, table, kind){
+  let cands = [];
+  if(kind==='which'){
+    for(let d=1; d<=6; d++) cands.push(ans+d, ans-d);
+    cands = cands.filter(x=>x>0 && x%table!==0);
+  } else if(kind==='product'){
+    cands = [ans+table, ans-table, ans+1, ans-1, ans+2, ans-2, ans+10, ans-10];
+  } else {
+    cands = [ans+1, ans-1, ans+2, ans-2, ans+3, ans-3, ans+4, ans-4];
+  }
+  cands = shuffle(cands.filter(x=>x>0 && x!==ans));
+  const wrong = [];
+  cands.forEach(x=>{ if(wrong.length<3 && !wrong.includes(x)) wrong.push(x); });
+  return shuffle(wrong.concat(ans));
+}
+
+function buildQuestion(table, n, type){
+  const product = table*n;
+  const q = {table, n, type, product, choices:null, sub:''};
+
+  if(type==='multiply'){
+    q.answer = product;
+    q.text = `${table} × ${n} = ?`;
+    q.spoken = `${table} times ${n}`;
+  } else if(type==='divide'){
+    q.answer = n;
+    q.text = `${product} ÷ ${table} = ?`;
+    q.spoken = `${product} divided by ${table}`;
+  } else if(type==='missing'){
+    q.answer = n;
+    q.text = `${table} × □ = ${product}`;
+    q.spoken = `${table} times what number equals ${product}`;
+  } else if(type==='sequence'){
+    const p = 1 + Math.floor(Math.random()*Math.min(4, n-1));   // blank sits at position 1..4
+    const k0 = n - p;
+    const terms = [];
+    for(let i=0;i<5;i++) terms.push(i===p ? '□' : table*(k0+i));
+    q.answer = product;
+    q.text = terms.join(', ');
+    q.sub = 'Fill in the missing number';
+    q.spoken = 'What number is missing? ' + terms.map(x=>x==='□' ? 'blank' : x).join(', ');
+  } else { // which
+    q.answer = product;
+    q.text = `Which number is in the ${table} times table?`;
+    q.spoken = q.text;
+    q.choices = makeChoices(product, table, 'which');
+  }
+
+  if(!q.choices && data.choiceMode){
+    q.choices = makeChoices(q.answer, table, (type==='multiply' || type==='sequence') ? 'product' : 'small');
+  }
+  return q;
 }
 
 function createQuestion(){
+  if(!game.active) return;
+  game.qCount++;
 
-const type =
-Math.floor(Math.random()*3);
+  let fact;
+  const ri = game.retry.findIndex(r=>r.due<=game.qCount);
+  if(ri>=0){
+    const r = game.retry.splice(ri,1)[0];
+    fact = {t:r.table, n:r.n};
+  } else {
+    fact = pickFact();
+  }
 
-const n =
-Math.floor(Math.random()*12)+1;
+  let type = randomItem(game.types);
+  if(type==='sequence' && fact.n<2) type = 'multiply';   // a pattern needs a number before it
+  game.lastKey = fact.t+'x'+fact.n;
 
-let questionText='';
+  const q = buildQuestion(fact.t, fact.n, type);
+  game.q = q;
 
-if(type===0){
+  const qEl = $('question');
+  qEl.className = 'question' + (q.type==='which' ? ' long' : '');
+  qEl.innerHTML = q.text + (q.sub ? `<div class="qsub">${q.sub}</div>` : '');
 
-currentAnswer = n * game.table;
+  const useChoices = !!q.choices;
+  $('typeArea').style.display = useChoices ? 'none' : 'block';
+  const c = $('choices');
+  c.innerHTML = '';
+  if(useChoices){
+    q.choices.forEach(v=>{
+      const b = document.createElement('button');
+      b.textContent = v;
+      b.dataset.v = v;
+      b.onclick = ()=>submitAnswer(v);
+      c.appendChild(b);
+    });
+  }
+  c.style.display = useChoices ? 'grid' : 'none';
 
-questionText =
-`${game.table} × ${n} = ?`;
-
+  $('continueBtn').style.display = 'none';
+  $('feedback').innerHTML = '';
+  game.waiting = false;
+  game.locked = false;
+  if(!useChoices){
+    $('answer').value = '';
+    $('answer').focus();
+  }
+  speak(q.spoken);
 }
 
-else if(type===1){
-
-currentAnswer = n;
-
-questionText =
-`${n*game.table} ÷ ${game.table} = ?`;
-
+function nextQuestion(){
+  clearTimeout(nextTimeout);
+  createQuestion();
 }
 
-else{
+/* ---------- Game flow ---------- */
+function startGame(customFacts){
+  let tables, types;
+  if(customFacts && Array.isArray(customFacts)){
+    tables = Array.from(new Set(customFacts.map(f=>f.t)));
+    types = data.types.slice();
+    game.custom = customFacts;
+    menuMode = 'practice';
+  } else {
+    tables = getChecked('.tbl').map(Number);
+    types = getChecked('.qtype');
+    if(tables.length===0){ alert('Please pick at least one times table.'); return; }
+    if(types.length===0){ alert('Please pick at least one question type.'); return; }
+    data.tables = tables;
+    data.types = types;
+    data.choiceMode = document.querySelector('input[name=astyle]:checked').value === 'choose';
+    data.speak = $('speakBox').checked;
+    game.custom = null;
+  }
 
-currentAnswer = n;
+  touchDay();
+  stopTimers();
+  stopSpeech();
 
-questionText =
-`${game.table} × □ = ${n*game.table}`;
+  game.tables = tables;
+  game.types = types;
+  game.mode = menuMode;
+  game.score = 0;
+  game.streak = 0;
+  game.challengeAnswers = 0;
+  game.challengeCorrect = 0;
+  game.correctTimes = [];
+  game.retry = [];
+  game.qCount = 0;
+  game.lastKey = '';
+  game.q = null;
+  game.locked = false;
+  game.waiting = false;
+  game.active = true;
+  game.prevBest = data.bestScore || 0;
 
+  checkAchievements();
+  save();
+
+  $('score').innerText = 0;
+  $('streak').innerText = 0;
+  $('feedback').innerHTML = '';
+  $('bestLine').innerHTML = '';
+  showScreen('game');
+
+  if(game.mode==='challenge'){
+    $('modeTitle').innerHTML = '⚡ 60 Second Challenge';
+    if(game.prevBest) $('bestLine').innerHTML = '🏅 Best to beat: ' + game.prevBest;
+    let remaining = 60;
+    $('timer').innerHTML = 'Time: 60';
+    timerId = setInterval(()=>{
+      remaining--;
+      $('timer').innerHTML = 'Time: ' + remaining;
+      if(remaining<=0) endChallenge();
+    }, 1000);
+  } else {
+    $('modeTitle').innerHTML = game.custom ? '🎯 Practising your tricky facts' : '📚 Practice Mode';
+    $('timer').innerHTML = '';
+  }
+  createQuestion();
 }
 
-game.answer = currentAnswer;
-
-document.getElementById('question').innerHTML =
-questionText;
-
-document.getElementById('answer').value='';
-
-document.getElementById('answer').focus();
-
+function stopTimers(){
+  clearInterval(timerId); timerId = null;
+  clearTimeout(nextTimeout); nextTimeout = null;
 }
 
-function startPractice(){
-
-game.table =
-parseInt(
-document.getElementById('tableSelect').value
-);
-
-game.mode='practice';
-
-game.score=0;
-game.streak=0;
-
-document.getElementById('score').innerText=0;
-document.getElementById('streak').innerText=0;
-
-document.getElementById('modeTitle').innerHTML =
-'📚 Practice Mode';
-
-document.getElementById('timer').innerHTML='';
-
-showScreen('game');
-
-createQuestion();
-
+function quitGame(){
+  stopTimers();
+  stopSpeech();
+  game.active = false;
+  save();
+  showScreen('home');
 }
 
-function startChallenge(){
-
-game.table =
-parseInt(
-document.getElementById('tableSelect').value
-);
-
-game.mode='challenge';
-
-game.score=0;
-game.streak=0;
-
-game.challengeAnswers=0;
-game.challengeCorrect=0;
-
-game.correctTimes=[];
-
-document.getElementById('score').innerText=0;
-document.getElementById('streak').innerText=0;
-
-showScreen('game');
-
-document.getElementById('modeTitle').innerHTML =
-'⚡ 60 Second Challenge';
-
-let remaining = 60;
-
-document.getElementById('timer').innerHTML =
-'Time: 60';
-
-createQuestion();
-
-let t = setInterval(()=>{
-
-remaining--;
-
-document.getElementById('timer').innerHTML =
-'Time: '+remaining;
-
-if(remaining<=0){
-
-clearInterval(t);
-
-endChallenge();
-
+function submitTyped(){
+  if(!game.active || game.locked || game.waiting) return;
+  const v = parseInt($('answer').value, 10);
+  if(isNaN(v)) return;
+  submitAnswer(v);
 }
 
-},1000);
+function submitAnswer(v){
+  if(!game.active || game.locked || game.waiting) return;
+  const q = game.q;
+  game.locked = true;
+  data.answered++;
+  if(game.mode==='challenge') game.challengeAnswers++;
 
-}
+  const correct = (v === q.answer);
+  recordFact(q.table, q.n, correct, !!q.choices);
 
-function submitAnswer(){
+  // daily goal
+  rollToday();
+  data.todayCount++;
+  if(data.todayCount>=GOAL && data.goalDate!==todayStr(0)){
+    data.goalDate = todayStr(0);
+    data.goalsDone++;
+    data.stars += GOAL_STARS;
+    toast("🎯 Daily goal complete!  (+" + GOAL_STARS + " ⭐)");
+  }
 
-const answerBox =
-document.getElementById('answer');
+  // colour the multiple choice buttons
+  if(q.choices){
+    Array.from($('choices').children).forEach(b=>{
+      const bv = Number(b.dataset.v);
+      if(bv===q.answer) b.classList.add('right');
+      else if(bv===v) b.classList.add('wrongc');
+    });
+  }
 
-const v =
-parseInt(answerBox.value);
+  let delay = 700;
+  if(correct){
+    game.score++;
+    game.streak++;
+    data.correct++;
+    data.tableCorrect[q.table] = (data.tableCorrect[q.table]||0) + 1;
+    data.typeCorrect[q.type] = (data.typeCorrect[q.type]||0) + 1;
+    game.correctTimes.push(Date.now());
+    if(game.mode==='challenge') game.challengeCorrect++;
+    if(game.streak>data.bestStreak) data.bestStreak = game.streak;
 
-data.answered++;
+    let msg = '✅ Correct';
+    if(data.correct % 10 === 0){      // 1 bonus star for every 10 correct answers
+      data.stars++;
+      msg += ' +1 ⭐';
+    }
+    $('feedback').innerHTML = msg;
+  } else {
+    game.streak = 0;
+    game.retry.push({table:q.table, n:q.n, due:game.qCount+3});   // ask it again in a few questions
+    const fact = `${q.table} × ${q.n} = ${q.product}`;
+    if(game.mode==='practice'){
+      game.waiting = true;   // stay on screen until Jacob taps Continue
+      $('feedback').innerHTML = `❌ Not quite!<br><b>${fact}</b>`;
+      $('typeArea').style.display = 'none';
+      $('continueBtn').style.display = 'block';
+      $('continueBtn').focus();
+      speak(`${q.table} times ${q.n} equals ${q.product}`);
+    } else {
+      $('feedback').innerHTML = '❌ ' + fact;
+      delay = 1500;
+    }
+  }
 
-if(game.mode==='challenge'){
-game.challengeAnswers++;
-}
+  $('score').innerHTML = game.score;
+  $('streak').innerHTML = game.streak;
+  if(game.mode==='challenge' && game.prevBest>0 && game.score>game.prevBest){
+    $('bestLine').innerHTML = '🎉 You are beating your best!';
+  }
 
-if(v===game.answer){
-
-game.score++;
-game.streak++;
-
-if(game.mode==='challenge'){
-
-game.challengeCorrect++;
-
-game.correctTimes.push(Date.now());
-
-}
-
-data.correct++;
-
-if(game.streak>data.bestStreak){
-data.bestStreak=game.streak;
-}
-
-document.getElementById('feedback')
-.innerHTML='✅ Correct';
-
-}
-else{
-
-game.streak=0;
-
-document.getElementById('feedback')
-.innerHTML=
-'❌ Answer was '+game.answer;
-
-}
-
-document.getElementById('score').innerHTML =
-game.score;
-
-document.getElementById('streak').innerHTML =
-game.streak;
-
-checkAchievements();
-
-setTimeout(createQuestion,700);
-
-save();
-
-refreshHome();
-
+  checkAchievements();
+  save();
+  refreshHome();
+  if(!game.waiting) nextTimeout = setTimeout(nextQuestion, delay);
 }
 
 function checkAchievements(){
+  // speed trophies: the last 3 (or 5) correct answers all landed within 10 seconds
+  const t = game.correctTimes;
+  if(t.length>=3 && t[t.length-1] - t[t.length-3] <= 10000) data.fast3 = true;
+  if(t.length>=5 && t[t.length-1] - t[t.length-5] <= 10000) data.fast5 = true;
 
-if(
-game.mode==='challenge' &&
-game.correctTimes.length>=3
-){
-
-let ms =
-game.correctTimes[2] -
-game.correctTimes[0];
-
-if(ms<=10000){
-data.fast3=true;
-}
-
-}
-
-TROPHIES.forEach(t=>{
-
-if(
-!data.unlocked.includes(t.id)
-&& t.condition(data)
-){
-
-data.unlocked.push(t.id);
-
-data.stars += t.stars;
-
-alert(
-'🏆 Trophy Unlocked!\n\n'
-+ t.name
-);
-
-}
-
-});
-
+  const won = [];
+  TROPHIES.forEach(tr=>{
+    if(!data.unlocked.includes(tr.id) && tr.condition(data)){
+      data.unlocked.push(tr.id);
+      data.stars += tr.stars;
+      won.push(tr.name + '  (+' + tr.stars + ' ⭐)');
+    }
+  });
+  if(won.length){
+    toast('🏆 Trophy Unlocked!\n' + won.slice(0,3).join('\n') +
+          (won.length>3 ? '\n…and ' + (won.length-3) + ' more!' : ''));
+  }
 }
 
 function endChallenge(){
+  stopTimers();
+  stopSpeech();
+  game.active = false;
 
-if(
-game.challengeAnswers >= 10 &&
-game.challengeAnswers === game.challengeCorrect
-){
-data.perfectChallenge=true;
+  data.challenges++;
+  if(game.challengeAnswers>=10 && game.challengeAnswers===game.challengeCorrect){
+    data.perfectChallenge = true;
+  }
+
+  let msg = '🏁 Challenge Complete!\n\nScore: ' + game.score;
+  if(game.prevBest>0 && game.score>game.prevBest){
+    msg += '\n🎉 New personal best! (your old best was ' + game.prevBest + ')';
+    data.pbCount++;
+  } else if(game.prevBest>0){
+    msg += '\nYour best is ' + game.prevBest + '. Have another go to beat it!';
+  } else {
+    msg += '\nThat is your first score. Next time, try to beat it!';
+  }
+  if(game.score>data.bestScore) data.bestScore = game.score;
+
+  const bonus = Math.floor(game.score/5);   // 1 star per 5 correct in a challenge
+  data.stars += bonus;
+  if(bonus) msg += '\n+' + bonus + ' ⭐ bonus';
+
+  checkAchievements();
+  save();
+
+  alert(msg);
+  showScreen('home');
 }
 
-if(game.score > data.bestScore){
-data.bestScore = game.score;
+/* ---------- Learn screen ---------- */
+function showLearn(t){
+  learn.t = t || learn.t || 3;
+  learn.n = 1;
+  if(!data.learned.includes(learn.t)){
+    data.learned.push(learn.t);
+    checkAchievements();
+    save();
+  }
+  showScreen('learn');
+  renderLearn();
 }
 
-save();
-
-alert(
-'🏁 Challenge Complete!\n\nScore: '
-+
-game.score
-);
-
-showScreen('home');
-
+function learnPickTable(t){ showLearn(t); }
+function learnPickN(n){
+  learn.n = Math.max(1, Math.min(12, n));
+  renderLearn();
 }
 
+function factState(t, n){
+  const f = data.facts[t+'x'+n];
+  if(!f) return 'new';
+  if(f.lvl>=3) return 'done';
+  if(f.lvl===0) return 'learn';
+  return 'ok';
+}
+
+function renderLearn(){
+  const t = learn.t, n = learn.n;
+
+  let pick = '';
+  for(let i=2;i<=12;i++){
+    pick += `<button class="${i===t?'sel':''}" onclick="learnPickTable(${i})">${i}</button>`;
+  }
+  $('learnPick').innerHTML = pick;
+
+  const seq = [];
+  for(let k=1;k<=12;k++) seq.push(t*k);
+
+  let dots = '';
+  for(let i=0;i<t*n;i++) dots += '<div class="dot"></div>';
+
+  let rows = '';
+  for(let k=1;k<=12;k++){
+    rows += `<div class="factrow ${k===n?'cur':''}" onclick="learnPickN(${k})">
+               <span class="chip st-${factState(t,k)}"></span> ${t} × ${k} = ${t*k}
+             </div>`;
+  }
+
+  $('learnBody').innerHTML = `
+    <div class="card">
+      <h3>Counting in ${t}s</h3>
+      <div class="skip">${seq.join(', ')}</div>
+    </div>
+    <div class="card">
+      <h3>💡 Tip</h3>
+      <div>${TRICKS[t]}</div>
+    </div>
+    <div class="card center">
+      <div class="bigfact">${t} × ${n} = ${t*n}</div>
+      <div>${n} ${n===1?'row':'rows'} of ${t}</div>
+      <div class="dots" style="grid-template-columns:repeat(${t},14px)">${dots}</div>
+      <div class="row" style="justify-content:center">
+        <button class="small" onclick="learnPickN(${n-1})">− fewer rows</button>
+        <button class="small" onclick="learnPickN(${n+1})">＋ more rows</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>The ${t} times table</h3>
+      ${rows}
+    </div>
+    <button onclick="practiseTable(${t})">Practise the ${t} times table</button>`;
+}
+
+function practiseTable(t){
+  data.tables = [t];
+  openMenu('practice');
+}
+
+/* ---------- Progress screen ---------- */
+function trickyFacts(limit){
+  const list = [];
+  Object.keys(data.facts).forEach(k=>{
+    const f = data.facts[k];
+    if(f.wrong>0 && f.lvl<3){
+      const parts = k.split('x').map(Number);
+      list.push({t:parts[0], n:parts[1], wrong:f.wrong, right:f.right});
+    }
+  });
+  list.sort((a,b)=> b.wrong-a.wrong || a.right-b.right);
+  return list.slice(0, limit);
+}
+
+function showProgress(){
+  showScreen('progress');
+  $('masteredCount').innerText = masteredCount(data);
+
+  let h = '<div class="grid"><div></div>';
+  for(let n=1;n<=12;n++) h += `<div class="gh">${n}</div>`;
+  for(let t=2;t<=12;t++){
+    h += `<div class="gl">${t}×</div>`;
+    for(let n=1;n<=12;n++){
+      h += `<div class="gc st-${factState(t,n)}" onclick="gridTap(${t},${n})">${t*n}</div>`;
+    }
+  }
+  h += '</div>';
+  $('gridBox').innerHTML = h;
+
+  const tricky = trickyFacts(8);
+  if(tricky.length){
+    $('trickyBox').innerHTML = `<div class="card">
+      <h3>🎯 Facts to practise</h3>
+      <div class="skip">${tricky.map(f=>`${f.t} × ${f.n} = ${f.t*f.n}`).join('<br>')}</div>
+      <button onclick="practiseTricky()">Practise these facts</button>
+    </div>`;
+  } else {
+    $('trickyBox').innerHTML = '<div class="card center">No tricky facts yet. Keep going! 🌟</div>';
+  }
+}
+
+function gridTap(t, n){
+  const f = data.facts[t+'x'+n];
+  toast(`${t} × ${n} = ${t*n}` + (f ? `  (right ${f.right}, wrong ${f.wrong})` : '  (not tried yet)'));
+}
+
+function practiseTricky(){
+  const list = trickyFacts(8);
+  if(!list.length) return;
+  startGame(list);
+}
+
+/* ---------- Trophies screen ---------- */
 function showTrophies(){
+  showScreen('trophies');
+  $('trophyCount').innerText = data.unlocked.length + ' of ' + TROPHIES.length + ' unlocked';
+  const list = $('trophyList');
+  list.innerHTML = '';
+  TROPHIES.forEach(t=>{
+    const div = document.createElement('div');
+    const unlocked = data.unlocked.includes(t.id);
+    div.className = 'trophy ' + (unlocked ? 'unlocked' : 'locked');
+    div.textContent = unlocked ? t.name : '🔒 ' + t.name;
+    list.appendChild(div);
+  });
+}
 
-showScreen('trophies');
+/* ---------- Shop screen ---------- */
+function owns(id){ return id==='theme_blue' || data.owned.includes(id); }
 
-const trophyList =
-document.getElementById('trophyList');
+function showShop(){
+  showScreen('shop');
+  renderShop();
+}
 
-trophyList.innerHTML='';
+function itemButton(i){
+  if(i.type==='reward'){
+    return `<button class="small" ${data.stars<i.cost?'disabled':''} onclick="buyItem('${i.id}')">Buy ⭐${i.cost}</button>`;
+  }
+  const slot = i.type;   // 'pet' or 'theme'
+  if(owns(i.id)){
+    return data.equipped[slot]===i.id
+      ? `<button class="small" disabled>Equipped ✓</button>`
+      : `<button class="small" onclick="equipItem('${i.id}')">Equip</button>`;
+  }
+  return `<button class="small" ${data.stars<i.cost?'disabled':''} onclick="buyItem('${i.id}')">Buy ⭐${i.cost}</button>`;
+}
 
-TROPHIES.forEach(t=>{
+function renderShop(){
+  $('shopStars').innerText = data.stars;
 
-const div =
-document.createElement('div');
+  // Rewards already bought, waiting for a parent to approve
+  let v = '';
+  if(data.vouchers.length){
+    v = '<h3>🎟️ My Rewards</h3>';
+    data.vouchers.forEach((id, idx)=>{
+      const i = SHOP.find(x=>x.id===id);
+      if(!i) return;
+      v += `<div class="card item"><div class="itemname">${i.icon} ${i.name}</div>
+            <button class="small secondary" onclick="useVoucher(${idx})">Use (parent)</button></div>`;
+    });
+  }
+  $('voucherList').innerHTML = v;
 
-const unlocked =
-data.unlocked.includes(t.id);
+  const groups = [['pet','🐾 Pets'],['theme','🎨 Colour Themes'],['reward','🎁 Real Rewards']];
+  let html = '';
+  groups.forEach(([type,title])=>{
+    html += `<h3>${title}</h3>`;
+    SHOP.filter(i=>i.type===type).forEach(i=>{
+      html += `<div class="card item"><div class="itemname">${i.icon} ${i.name}</div>${itemButton(i)}</div>`;
+    });
+  });
+  $('shopList').innerHTML = html;
+}
 
-div.className =
-'trophy ' +
-(
-unlocked
-?
-'unlocked'
-:
-'locked'
-);
+function buyItem(id){
+  const i = SHOP.find(x=>x.id===id);
+  if(!i || data.stars < i.cost) return;
+  if(!confirm(`Buy ${i.name} for ${i.cost} stars?`)) return;
+  data.stars -= i.cost;
+  if(i.type==='reward'){
+    data.vouchers.push(i.id);
+  } else {
+    data.owned.push(i.id);
+    data.equipped[i.type] = i.id;   // equip straight away
+  }
+  save();
+  refreshHome();
+  renderShop();
+}
 
-div.innerHTML =
-unlocked
-?
-t.name
-:
-'🔒 ' + t.name;
+function equipItem(id){
+  const i = SHOP.find(x=>x.id===id);
+  if(!i || !owns(id)) return;
+  data.equipped[i.type] = id;
+  save();
+  refreshHome();
+  renderShop();
+}
 
-trophyList.appendChild(div);
+function useVoucher(idx){
+  const pin = prompt('Parent PIN to use this reward');
+  if(pin !== PIN) return;
+  data.vouchers.splice(idx, 1);
+  save();
+  renderShop();
+}
 
+/* ---------- Parent settings ---------- */
+function openSettings(){
+  const pin = prompt('Enter Parent PIN');
+  if(pin !== PIN) return;
+  const action = prompt('Parent Settings\n\n1 = Reset Progress\n2 = Give Bonus Stars\n3 = Show Weakest Facts');
+  if(action==='1' && confirm('Reset all progress?')){
+    try{ localStorage.removeItem('kirfData'); }catch(e){}
+    alert('Progress reset');
+    location.reload();
+  } else if(action==='2'){
+    const n = parseInt(prompt('How many stars to give?'), 10);
+    if(n > 0){
+      data.stars += n;
+      save();
+      refreshHome();
+      alert('Added ' + n + ' stars');
+    }
+  } else if(action==='3'){
+    const list = trickyFacts(10);
+    alert(list.length
+      ? 'Weakest facts:\n\n' + list.map(f=>`${f.t} × ${f.n} = ${f.t*f.n}   (${f.wrong} wrong, ${f.right} right)`).join('\n')
+      : 'No weak facts yet. Nothing has been answered wrongly (or they have all been mastered).');
+  }
+}
+
+// Enter key: answer a typed question, or continue after a wrong answer
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter' || !game.active) return;
+  if(!$('game').classList.contains('active')) return;
+  if(e.target.tagName==='BUTTON') return;      // buttons handle Enter themselves
+  e.preventDefault();
+  if(game.waiting) nextQuestion();
+  else if(game.q && !game.q.choices) submitTyped();
 });
 
-}
-
-function openSettings(){
-
-const pin =
-prompt(
-'Enter Parent PIN'
-);
-
-if(pin !== '1234'){
-return;
-}
-
-const action =
-prompt(
-`Parent Settings
-
-1 = Change Table
-2 = Reset Progress`
-);
-
-if(action === '1'){
-
-const selected =
-prompt(
-'Choose Times Table\n2,3,4,5,8,10',
-game.table
-);
-
-if(selected){
-
-game.table =
-parseInt(selected);
-
-alert('Table updated');
-
-}
-
-}
-
-if(action === '2'){
-
-if(
-confirm(
-'Reset all progress?'
-)
-){
-
-localStorage.removeItem(
-'kirfData'
-);
-
-alert(
-'Progress reset'
-);
-
-location.reload();
-
-}
-
-}
-
-}
-
 refreshHome();
-
 </script>
-
 </body>
 </html>
